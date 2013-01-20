@@ -6,6 +6,7 @@ The code is loaded against any site by a bookmark button and after it is success
 
 ## Dependencies
 jQuery
+
 a modern browser with localStorage enabled
 
 ## Credits
