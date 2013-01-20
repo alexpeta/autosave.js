@@ -70,7 +70,37 @@ autosave_js.loadItems = function(){
 		self.attr('autosave-guid',guid);
 	});
 }
-
+/*
+	function that loads saved valus from localDb to form.
+*/
+autosave_js.fillFormFromDB = function(){
+	var dbValue = localStorage.getItem(autosave_js.localStorageName);
+	if(dbValue !== null)
+	{
+		var dbList = jQuery.parseJSON(dbValue);
+		if(dbList != null)
+		{
+			for(var i=0;i<dbList.length;i++)
+			{
+				var itemProps = dbList[i].k.split('|');
+				if(document.location.href == itemProps[0])
+				{
+					if( itemProps[1] !== '')
+					{
+						$('#'+itemProps[1]).val(dbList[i].v);
+					}
+					else
+					{
+						$('[name="'+itemProps[2]+'"]').val(dbList[i].v);
+					}
+				}
+			}
+		}
+	}
+}
+/*
+	function that saves key-value pairs to localStorage
+*/
 autosave_js.save = function(){
 	if(autosave_js.Items !== null){
 		var cache = autosave_js.Items;
@@ -88,9 +118,8 @@ autosave_js.save = function(){
 			{
 				str += ',{"k":"'+cache[i].Key+'","v":"'+cache[i].Value+'"}'
 			}
-			str += ']';
 		}
-		
+		str += ']';		
 		localStorage.setItem(autosave_js.localStorageName,str);
 	}
 	
@@ -98,28 +127,19 @@ autosave_js.save = function(){
 	// autosave_js.debug();
 }
 
-autosave_js.debug = function(){
-	var cache = autosave_js.Items;
-	for(var i=0;i<cache.length;i++)
-	{
-		var str = cache[i].Guid+'='+cache[i].Value;
-		console.log(str);
-	}
-}
-
 /*
 	check for requirements
 */
 autosave_js.checkDependencies = function(){
-		if(!localStorage)
-		{
-			throw new Exception('An error ocured : autosave.js needs a browser that supports localStorage.');
-		};
-		
-		if(!window.jQuery)
-		{
-			throw new Exception('An error ocured : autosave.js needs jQuery enabled.');
-		}
+	if(!localStorage)
+	{
+		throw new Exception('An error ocured : autosave.js needs a browser that supports localStorage.');
+	};
+	
+	if(!window.jQuery)
+	{
+		throw new Exception('An error ocured : autosave.js needs jQuery enabled.');
+	}
 }
 
 /*
@@ -129,6 +149,7 @@ autosave_js.StartAutoSave = function(){
 	try
 	{
 		autosave_js.checkDependencies();
+		autosave_js.fillFormFromDB();
 		autosave_js.loadItems();
 		autosave_js.t = setInterval('autosave_js.save()',autosave_js.options.defaultSaveTime);
 	}
